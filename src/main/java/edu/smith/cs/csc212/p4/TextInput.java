@@ -100,6 +100,18 @@ public class TextInput {
 			System.err.println("Couldn't understand: " + response + " try one of [yes, no]");
 		}
 	}
+	
+	public String choose(String prompt) {
+		while (true) {
+			List<String> response = this.getUserWords(prompt + "[front door] or [cabinet] ");
+			if (response.contains("front door") || response.contains("front")) {
+				return "front";
+			} else if (response.contains("cabinet")) {
+				return "cabinet";
+			}
+			System.err.println("Couldn't understand: " + response + " try 'front door' or 'cabinet'");
+		}
+	}
 
 	/**
 	 * Use command-line arguments to set up a TextInput.

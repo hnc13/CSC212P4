@@ -13,12 +13,34 @@ public class InteractiveFiction {
 	 * This is where we play the game.
 	 * @param args
 	 */
+	
+	static GameWorld game;
+	
 	public static void main(String[] args) {
 		// This is a text input source (provides getUserWords() and confirm()).
 		TextInput input = TextInput.fromArgs(args);
 
-		// This is the game we're playing.
-		GameWorld game = new SpookyMansion();
+		// This prompts the user to choose a game.
+		System.out.println ("Hello! What game would you like to play: \n"
+				+ "'Spooky Mansion' or 'Clue'?");
+		
+		// This takes the user's input and chooses the correct game accordingly.
+		while (game == null) {
+			List<String> games = input.getUserWords(">");
+			String gameChoice = games.get(0).toLowerCase().trim();
+			// Spooky Mansion starts if the first word of the user's input is "spooky"
+			if (gameChoice.contentEquals("spooky")) {
+				game = new SpookyMansion();
+			// Clue starts if the first word of the user's input is "clue"
+			} else if (gameChoice.contentEquals("clue")) {
+				game = new Clue();
+			//If the user types something other than the name of a game, it will prompt them to input something else.
+			} else {
+				System.out.println ("You must choose one of the games!");
+				continue;
+			}
+		}
+		
 		
 		// This is the current location of the player (initialize as start).
 		// Maybe we'll expand this to a Player object.
@@ -29,7 +51,7 @@ public class InteractiveFiction {
 		while (true) {
 			// Print the description of where you are.
 			Place here = game.getPlace(place);
-			System.out.println(here.getDescription());
+			here.printDescription();
 
 			// Game over after print!
 			if (here.isTerminalState()) {
@@ -57,12 +79,75 @@ public class InteractiveFiction {
 			// Get the word they typed as lowercase, and no spaces.
 			String action = words.get(0).toLowerCase().trim();
 			
+
 			if (action.equals("quit") || action.equals("escape") || action.equals("q")){
 				if (input.confirm("Are you sure you want to quit?")) {
 					break;
 				} else {
 					continue;
 				}
+			}
+			
+			//TODO: caption this
+			//TODO: ask why mansionItems prints when user types "take"
+			//TODO: debug this too rip
+			if (action.equals("take")) {
+				String room = here.getId();
+				if (Clue.mansionItems.size() == 0) {
+					System.out.println("There's nothing to take!");
+					continue;
+				} else if (Clue.roomFKey.get(room) == false && Clue.roomCKey.get(room) == false) {
+					System.out.println("There's nothing to take!");
+					continue;
+				} else if (Clue.roomFKey.get(room) && Clue.mansionItems.contains(Clue.frontKey)){
+					if (Clue.roomCKey.get(room) && Clue.mansionItems.contains(Clue.cabinetKey)) {
+						if (input.choose("Do you want to take the key to the front door or the key to the weapons cabinet?") == "front") {
+							Clue.items.add(Clue.frontKey);
+							Clue.mansionItems.remove(Clue.frontKey);
+							Clue.hasFrontKey = true;
+							System.out.println ("The key to the front door is now in your inventory. Type 'stuff' to see your inventory.\n");
+							continue;
+						} else {
+							Clue.items.add(Clue.cabinetKey);
+							Clue.mansionItems.remove(Clue.cabinetKey);
+							Clue.hasCabinetKey = true;
+							System.out.println ("The key to the weapons cabinet is now in your inventory. Type 'stuff' to see your inventory.\n");
+							continue;
+						}
+					} else {
+						System.out.println (Clue.mansionItems);
+						if (input.confirm("Are you sure you want to take the key to the front door?")) {
+							Clue.items.add(Clue.frontKey);
+							Clue.mansionItems.remove(Clue.frontKey);
+							Clue.hasFrontKey = true;
+							System.out.println ("The key to the front door is now in your inventory. Type 'stuff' to see your inventory.\n");
+							continue;
+						}
+					}
+					
+				} else if (Clue.roomCKey.get(room) && Clue.mansionItems.contains(Clue.cabinetKey)){
+					} if (input.confirm("Are you sure you want to take the key to the weapons cabinet?")) {
+						Clue.items.add(Clue.cabinetKey);
+						Clue.mansionItems.remove(Clue.cabinetKey);
+						Clue.hasCabinetKey = true;
+						System.out.println ("The key to the weapons cabinet is now in your inventory. Type 'stuff' to see your inventory.\n");
+						continue;
+				} else {
+					System.out.println ("There's nothing to take!");
+					continue;
+					}
+			}
+			
+			//TODO: comment this
+			if (action.equals("stuff")) {
+				if (Clue.items.size() != 0) {
+					System.out.println ("Inventory: " + Clue.items);
+					continue;
+				} else if (Clue.items.isEmpty()) {
+					System.out.println ("Your inventory is empty.");
+					continue;
+				}
+				
 			}
 			
 			// From here on out, what they typed better be a number!

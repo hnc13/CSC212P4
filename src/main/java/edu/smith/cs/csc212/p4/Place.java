@@ -3,6 +3,7 @@ package edu.smith.cs.csc212.p4;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 /**
  * This represents a place in our text adventure.
@@ -27,17 +28,27 @@ public class Place {
 	 */
 	private boolean terminal;
 	
+	private Boolean hasBody;
+	
+	public Boolean hasFKey;
+	
+	public Boolean hasCKey;
+	
+	
 	/**
-	 * Internal only constructor for Place. Use {@link #create(String, String)} or {@link #terminal(String, String)} instead.
+	 * Internal only constructor for Place. Use {@link #create(String, String, Boolean)} or {@link #terminal(String, String, Boolean)} instead.
 	 * @param id - the internal id of this place.
 	 * @param description - the user-facing description of the place.
 	 * @param terminal - whether this place ends the game.
 	 */
-	private Place(String id, String description, boolean terminal) {
+	private Place(String id, String description, boolean terminal, Boolean hasBody, Boolean hasFKey, Boolean hasCKey) {
 		this.id = id;
 		this.description = description;
 		this.exits = new ArrayList<>();
 		this.terminal = terminal;
+		this.hasBody = hasBody;
+		this.hasFKey = hasFKey;
+		this.hasCKey = hasCKey;
 	}
 	
 	/**
@@ -46,6 +57,10 @@ public class Place {
 	 */
 	public void addExit(Exit exit) {
 		this.exits.add(exit);
+	}
+	
+	public void addLockedExit(LockedExit lockedExit) {
+		this.exits.add(lockedExit);
 	}
 	
 	/**
@@ -66,11 +81,25 @@ public class Place {
 	
 	/**
 	 * The narrative description of this place.
-	 * @return what we show to a player about this place.
-	 */
-	public String getDescription() {
-		return this.description;
+	 */	
+	public void printDescription() {
+		System.out.println(this.description);
+		if (this.hasBody) {
+			System.out.println(Clue.foundBoddy);
+		}
+		if (this.hasFKey && !Clue.hasFrontKey) {
+			System.out.println("You spot the key to the front door lying on the ground.");
+		}
+		if (this.hasCKey && !Clue.hasCabinetKey) {
+			System.out.println("You spot the key to the weapons cabinet lying on the ground.");
+		}
+		System.out.println (Clue.time);
+		
+		
 	}
+//	public String getDescription() {
+//		return this.description;
+//	}
 
 	/**
 	 * Get a view of the exits from this Place, for navigation.
@@ -86,8 +115,8 @@ public class Place {
 	 * @param description - this is the description of the place.
 	 * @return the Place object.
 	 */
-	public static Place terminal(String id, String description) {
-		return new Place(id, description, true);
+	public static Place terminal(String id, String description, Boolean hasBody, Boolean hasFKey, Boolean hasCKey) {
+		return new Place(id, description, true, hasBody, hasFKey, hasCKey);
 	}
 	
 	/**
@@ -96,8 +125,8 @@ public class Place {
 	 * @param description - this is what we show to the user.
 	 * @return the new Place object (add exits to it).
 	 */
-	public static Place create(String id, String description) {
-		return new Place(id, description, false);
+	public static Place create(String id, String description, Boolean hasBody, Boolean hasFKey, Boolean hasCKey) {
+		return new Place(id, description, false, hasBody, hasFKey, hasCKey);
 	}
 	
 	/**
